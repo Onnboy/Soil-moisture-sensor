@@ -1,0 +1,53 @@
+int sensorPin = A1;
+int sensorValue=0;
+const int numReadings = 10;
+int readings[numReadings];
+int readIndex = 0;
+int total = 0;
+int average = 0;
+
+void setup() {
+  Serial.begin(9600);
+  for (int i = 0; i < numReadings; i++) {
+    readings[i] = 0;
+ }
+}
+
+void loop(){
+  // Remove a leituraa mais antiga do total
+  total -=readings[readIndex];
+  if (total < 0) total = 0; // Impede valores negativos no total
+  
+  //Lê o novo valor do sensor
+  sensorValue = analogRead(sensorPin);
+
+  // Depuração: valor bruto do sensor
+  Serial.print("Valor bruto do sensor: ");
+  Serial.println(sensorValue);
+  
+  // Armazena a nova leitura no array
+  readings[readIndex] = sensorValue;
+  total += readings[readIndex];
+  // Avança para a proxima posição no array
+  readIndex = (readIndex + 1) % numReadings;
+  // Calcula a média
+  average = total / numReadings;
+
+  // Depuração: média dos valores
+  Serial.print("Média dos valores: ");
+  Serial.println(average);
+  
+  // Mapeia o valor média para um intervalo mais  mais claro (255 = seco, 0 = úmido
+  int mappedValue = map(average, 0, 0, 400, 0);
+  if (mappedValue < 0) mappedValue = 0; // Impede valores negativos
+  
+  // Exibe informações no monitor serial
+  if (mappedValue > 400){
+    Serial.print("Umido: ");
+ }if (mappedValue > 0){
+    Serial.print("Seco: ");
+ }
+
+  Serial.println(mappedValue);
+  delay(1000);
+}
